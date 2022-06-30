@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# this file contains the algorithms to
-
 import cv2
 import rospy
 import numpy as np
@@ -27,11 +25,11 @@ def image_callback(camera_image):
     cv_image = cv2.resize(cv_image, None, fx=0.7, fy=0.7, interpolation=cv2.INTER_AREA)
 
     # apply filters to the image
-    balanced_image = find_white_balance(cv_image)
-    filtered_image = apply_filters(balanced_image)
+    balanced_image = apply_white_balance(cv_image)
+    filtered_binary_image = apply_filters(balanced_image)
 
     # find the contours in the binary image
-    contours, _ = cv2.findContours(filtered_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(filtered_binary_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     # initialize the variables for computing the centroid and finding the largest contour
     cx = 0
@@ -70,13 +68,13 @@ def image_callback(camera_image):
 
     pub_yaw_rate(cv_image, cx, cy, width, height)
 
-    concatenated_image = np.concatenate((cv_image, filtered_image), axis=1)
-    cv2.imshow("Image", concatenated_image)
+    cv2.imshow("CV Image", cv_image)
+    cv2.imshow("Filtered Image", filtered_binary_image)
     cv2.waitKey(3)
 
 ################### filters ###################
 
-def find_white_balance(cv_image):
+def apply_white_balance(cv_image):
 
     # convert image to the LAB color space
     lab_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2LAB)
@@ -110,7 +108,7 @@ def perspective_warp(image,
 def apply_filters(cv_image):
 
     # apply white balance filter to even out the image
-    cv_image = find_white_balance(cv_image)
+    cv_image = apply_white_balance(cv_image)
 
     # convert image to the HLS color space
     hls_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HLS)
@@ -180,8 +178,7 @@ if __name__ == "__main__":
 
     rospy.init_node("follow_line", anonymous=True)
 
-    camera_topic = rospy.get_param("~camera_topic_name")  # as defined in the launch file
-    rospy.Subscriber(camera_topic, Image, image_callback)
+    rospy.Subscriber("/camera/image_raw", Image, image_callback)
 
     yaw_rate_pub = rospy.Publisher("yaw_rate", Float32, queue_size=1)
 

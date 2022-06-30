@@ -73,8 +73,7 @@ def image_callback(camera_image):
 if __name__ == "__main__":
     rospy.init_node("detect_yellow", anonymous=True)
 
-    camera_topic = rospy.get_param("~camera_topic_name")  # as defined in the launch file
-    rospy.Subscriber(camera_topic, Image, image_callback)
+    rospy.Subscriber("/camera/image_raw", Image, image_callback)
 
     yellow_detected_pub = rospy.Publisher("yellow_detected", Bool, queue_size=1)
 
