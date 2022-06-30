@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# yellow blob detection (sending synchronously)
+# yellow line detection node
 
 import cv2
 import rospy
@@ -35,7 +35,7 @@ def image_callback(camera_image):
     image_mask = cv2.inRange(hsv_image, lower_bounds, upper_bounds)
 
 
-    #find contours in the binary (BW) image
+    # find contours in the binary (black and white) image
     contours, _ = cv2.findContours (image_mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     # initialize the variables for computing the centroid and finding the largest contour
@@ -65,7 +65,7 @@ def image_callback(camera_image):
 
     yellow_detected_pub.publish(yellow_detected)
 
-    cv2.imshow("Yellow Detected Mask", image_mask)
+    # cv2.imshow("Yellow Line Detected", image_mask)
     cv2.waitKey(3)
 
 ################### main ###################
