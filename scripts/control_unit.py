@@ -5,7 +5,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool, Float32, Empty
 from dynamic_reconfigure.server import Server
-from simple_sim_h_course.cfg import ControlUnitConfig
+from shifted_line_pkg.cfg import ControlUnitConfig
 
 # global variables
 vel_msg = Twist()

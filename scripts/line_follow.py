@@ -8,7 +8,7 @@ from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge, CvBridgeError
 from dynamic_reconfigure.server import Server
-from simple_sim_h_course.cfg import ControlUnitConfig
+from shifted_line_pkg.cfg import LineFollowConfig
 
 # global variables
 yaw_rate = Float32()
@@ -189,7 +189,7 @@ if __name__ == "__main__":
 
     yaw_rate_pub = rospy.Publisher("yaw_rate", Float32, queue_size=1)
 
-    dynamic_reconfigure_server = Server(ControlUnitConfig, dynamic_reconfigure_callback)
+    dynamic_reconfigure_server = Server(LineFollowConfig, dynamic_reconfigure_callback)
 
     try:
       rospy.spin()
