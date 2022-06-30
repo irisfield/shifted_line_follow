@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   sensor_msgs
   geometry_msgs
+  dbw_polaris_msgs  # source ~/dbw_ws/devel/setup.sh before building
   dynamic_reconfigure
 )
 

@@ -33,10 +33,12 @@ def image_callback(camera_image):
 
     # apply filters to the image
     balanced_image = apply_white_balance(cv_image)
-    filtered_binary_image = apply_filters(balanced_image)
+    filtered_balanced_image = apply_filters(balanced_image)
+
+    filtered_balanced_image = get_region_of_interest(filtered_balanced_image)
 
     # find the contours in the binary image
-    contours, _ = cv2.findContours(filtered_binary_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(filtered_balanced_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     # initialize the variables for computing the centroid and finding the largest contour
     cx = 0
@@ -76,7 +78,7 @@ def image_callback(camera_image):
     pub_yaw_rate(cv_image, cx, cy, width, height)
 
     cv2.imshow("CV Image", cv_image)
-    cv2.imshow("Filtered Image", filtered_binary_image)
+    cv2.imshow("Filtered Image", filtered_balanced_image)
     cv2.waitKey(3)
 
 ################### filters ###################
@@ -112,6 +114,21 @@ def perspective_warp(image,
     # return the warped image
     return cv2.warpPerspective(image, perspective_transform_matrix, destination_size)
 
+def get_region_of_interest(image):
+
+    width, height = image.shape
+    height = height / 4
+    width = width / 4
+
+    proportion = 1.604
+    roi = np.array([[(112 * proportion, ((84 * proportion) + 80)) , (0 , 336 * proportion),(448 * proportion, 336 * proportion),(336 * proportion, ((84 * proportion) + 80))]], dtype = np.int32)
+
+    mask = np.zeros_like(image)
+    cv2.fillPoly(mask, roi, 255)
+
+    # return the image with the region of interest
+    return cv2.bitwise_and(image , mask)
+
 def apply_filters(cv_image):
 
     # apply white balance filter to even out the image
@@ -121,18 +138,18 @@ def apply_filters(cv_image):
     hls_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HLS)
 
     # define the upper and lower bounds for white
-    lower_bounds = np.uint8([0, 200, 0])
+    lower_bounds = np.uint8([0, RC.light_l, 0])
     upper_bounds = np.uint8([255, 255, 255])
     white_mask = cv2.inRange(hls_image, lower_bounds, upper_bounds)
 
     # define the upper and lower bounds for yellow
-    lower_bounds = np.uint8([10, 0, 100])
-    upper_bounds = np.uint8([40, 255, 255])
-    yellow_mask = cv2.inRange(hls_image, lower_bounds, upper_bounds)
+    # lower_bounds = np.uint8([10, 0, 100])
+    # upper_bounds = np.uint8([40, 255, 255])
+    # yellow_mask = cv2.inRange(hls_image, lower_bounds, upper_bounds)
 
     # combine the masks
-    white_or_yellow_mask = cv2.bitwise_or(white_mask, yellow_mask)
-    cv_image_using_mask =  cv2.bitwise_and(cv_image, cv_image, mask = white_or_yellow_mask)
+    # white_or_yellow_mask = cv2.bitwise_or(white_mask, yellow_mask)
+    cv_image_using_mask =  cv2.bitwise_and(cv_image, cv_image, mask = white_mask)
 
     # convert image to grayscale
     gray_image = cv2.cvtColor(cv_image_using_mask, cv2.COLOR_BGR2GRAY)
@@ -162,7 +179,7 @@ def pub_yaw_rate(cv_image, cx, cy, width, height):
     #       more than 3.0 - deviates a little outward when turning
     correction = RC.offset_yaw * camera_center_x
 
-    # compute the yaw rate proportional to the difference between centroid and camera center
+    # compute the yaw rate proportion to the difference between centroid and camera center
     angular_z = float(center_error / correction)
 
     if cx > camera_center_y:
