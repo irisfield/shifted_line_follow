@@ -7,11 +7,18 @@ from std_msgs.msg import Float32
 from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge, CvBridgeError
+from dynamic_reconfigure.server import Server
+from simple_sim_h_course.cfg import ControlUnitConfig
 
 # global variables
 yaw_rate = Float32()
 
 ################### callback ###################
+
+def dynamic_reconfigure_callback(config, level):
+    global RC
+    RC = config
+    return config
 
 def image_callback(camera_image):
 
@@ -100,10 +107,10 @@ def perspective_warp(image,
     destination = destination * np.float32(destination_size)
 
     # given source and destination points, calculate the perspective transform matrix
-    M = cv2.getPerspectiveTransform(source, destination)
+    perspective_transform_matrix = cv2.getPerspectiveTransform(source, destination)
 
     # return the warped image
-    return cv2.warpPerspective(image, M, destination_size)
+    return cv2.warpPerspective(image, perspective_transform_matrix, destination_size)
 
 def apply_filters(cv_image):
 
@@ -119,8 +126,8 @@ def apply_filters(cv_image):
     white_mask = cv2.inRange(hls_image, lower_bounds, upper_bounds)
 
     # define the upper and lower bounds for yellow
-    lower_bounds = np.uint8([ 10,   0, 100])
-    upper_bounds = np.uint8([ 40, 255, 255])
+    lower_bounds = np.uint8([10, 0, 100])
+    upper_bounds = np.uint8([40, 255, 255])
     yellow_mask = cv2.inRange(hls_image, lower_bounds, upper_bounds)
 
     # combine the masks
@@ -153,7 +160,7 @@ def pub_yaw_rate(cv_image, cx, cy, width, height):
     #       less than 3.0 - deviates a little inward when turning
     #                 3.0 - follows the line exactly
     #       more than 3.0 - deviates a little outward when turning
-    correction = 3.0 * camera_center_x
+    correction = RC.offset_yaw * camera_center_x
 
     # compute the yaw rate proportional to the difference between centroid and camera center
     angular_z = float(center_error / correction)
@@ -181,6 +188,8 @@ if __name__ == "__main__":
     rospy.Subscriber("/camera/image_raw", Image, image_callback)
 
     yaw_rate_pub = rospy.Publisher("yaw_rate", Float32, queue_size=1)
+
+    dynamic_reconfigure_server = Server(ControlUnitConfig, dynamic_reconfigure_callback)
 
     try:
       rospy.spin()
