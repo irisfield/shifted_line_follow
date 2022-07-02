@@ -4,7 +4,6 @@ import rospy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool, Float32
 from dbw_polaris_msgs.msg import SteeringReport
-# from dataspeed_ulc_msgs.msg import UlcReport
 
 # global variables
 time_elapsed = 0.0
