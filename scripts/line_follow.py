@@ -34,7 +34,6 @@ def image_callback(camera_image):
     # apply filters to the image
     balanced_image = apply_white_balance(cv_image)
     filtered_balanced_image = apply_filters(balanced_image)
-
     filtered_balanced_image = get_region_of_interest(filtered_balanced_image)
 
     # find the contours in the binary image
@@ -120,11 +119,26 @@ def get_region_of_interest(image):
     height = height / 4
     width = width / 4
 
+    # image = cv2.medianBlur(image, 15)
+
     proportion = 1.604
-    roi = np.array([[(112 * proportion, ((84 * proportion) + 80)) , (0 , 336 * proportion),(448 * proportion, 336 * proportion),(336 * proportion, ((84 * proportion) + 80))]], dtype = np.int32)
+    roi = np.array([[
+                     (200 * proportion, ((84 * proportion) + 0)),  # bottom left
+                     (200 , 250 * proportion),                     # top left
+                     (448 * proportion, 336 * proportion),         # bottom right
+                     (336 * proportion, ((84 * proportion) + 0))   # top right
+                   ]], dtype = np.int32)
+
+    # roi = np.array([[
+    #                  (width, (height // 2)),                       # bottom left
+    #                  ((width // 2), (height // 2) , ),             # top left
+    #                  (448 * proportion, 336 * proportion),         # bottom right
+    #                  (336 * proportion, ((84 * proportion) + 0))   # top right
+    #                ]], dtype = np.int32)
 
     mask = np.zeros_like(image)
     cv2.fillPoly(mask, roi, 255)
+    cv2.imshow("ROI", mask)
 
     # return the image with the region of interest
     return cv2.bitwise_and(image , mask)
