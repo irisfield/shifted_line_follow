@@ -115,7 +115,9 @@ def perspective_warp(image,
 
 def get_region_of_interest(image):
 
-    width, height = image.shape
+    width = image.shape[0]
+    height = image.shape[1]
+
     height = height / 4
     width = width / 4
 
