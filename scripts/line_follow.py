@@ -134,10 +134,10 @@ def get_region_of_interest(image):
     # get the region of interest
     roi = np.array([[
 
-                     [360,540], # BOTTOM LEFT
-                     [360,269], # TOP LEFT
-                     [540,269], # TOP RIGHT
-                     [720,538]  # BOTTOM RIGHT
+                     [360, 540], # BOTTOM LEFT
+                     [360, 269], # TOP LEFT
+                     [540, 269], # TOP RIGHT
+                     [720, 538]  # BOTTOM RIGHT
 
                    ]], dtype = np.int32)
 
@@ -148,7 +148,7 @@ def get_region_of_interest(image):
     # return the image with the region of interest
     return cv2.bitwise_and(image , mask)
 
-def perspective_warp(image,
+def warp_perspective(image,
                      destination_size=(1280, 720),
                      source=np.float32([(0.43, 0.65), (0.58, 0.65), (0.1, 1), (1, 1)]),
                      destination=np.float32([(0, 0), (1, 0), (0, 1), (1, 1)])):
@@ -166,7 +166,6 @@ def perspective_warp(image,
 
     # return the warped image
     return cv2.warpPerspective(image, perspective_transform_matrix, destination_size)
-
 
 ################### algorithms ###################
 
