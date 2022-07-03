@@ -67,7 +67,7 @@ def image_callback(camera_image):
     # draw a circle at centroid (https://www.geeksforgeeks.org/python-opencv-cv2-circle-method)
     cv2.circle(cv_image, (cx, cy), 8, (180, 0, 0), -1)  # -1 fill the circle
 
-    # get the dimensions of the image
+    # get the dimension of the image
     height, width = cv_image.shape[0], cv_image.shape[1]
 
     # offset the x position of the vehicle to follow the lane
