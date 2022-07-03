@@ -115,8 +115,8 @@ def perspective_warp(image,
 
 def get_region_of_interest(image):
 
-    width = image.shape[0]
-    height = image.shape[1]
+    height = image.shape[0]
+    width = image.shape[1]
 
     height = height / 4
     width = width / 4
@@ -125,10 +125,10 @@ def get_region_of_interest(image):
 
     proportion = 1.604
     roi = np.array([[
-                     (200 * proportion, ((84 * proportion) + 0)),  # bottom left
-                     (200 , 250 * proportion),                     # top left
-                     (448 * proportion, 336 * proportion),         # bottom right
-                     (336 * proportion, ((84 * proportion) + 0))   # top right
+                     [200 * proportion, ((84 * proportion) + 0)],
+                     [200 , 250 * proportion],
+                     [448 * proportion, 336 * proportion],
+                     [336 * proportion, ((84 * proportion) + 0)]
                    ]], dtype = np.int32)
 
     # roi = np.array([[
