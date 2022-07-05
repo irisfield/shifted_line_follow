@@ -31,12 +31,12 @@ def image_callback(camera_image):
     # resize the image
     cv_image = cv2.resize(cv_image, None, fx=0.7, fy=0.7, interpolation=cv2.INTER_AREA)
 
-    # apply filters to the image
-    filtered_image = apply_filters(cv_image)
-    filtered_image_with_roi = get_region_of_interest(filtered_image)
+    roi_image = get_region_of_interest(cv_image)
+    warped_roi_image = warp_perspective(roi_image)
+    filtered_roi_image = apply_filters(warped_roi_image)
 
     # find the contours in the binary image
-    contours, _ = cv2.findContours(filtered_image_with_roi, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(filtered_roi_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     # initialize the variables for computing the centroid and finding the largest contour
     cx = 0
@@ -54,29 +54,26 @@ def image_callback(camera_image):
             # compute the x and y coordinates of the centroid
             cx = int(M["m10"] / M["m00"])
             cy = int(M["m01"] / M["m00"])
-    else:
-        # rospy.loginfo(f"empty contours: {contours}")
-        pass
 
     try:
         # draw the obtained contour lines (or the set of coordinates forming a line) on the original image
-        cv2.drawContours(cv_image, max_contour, -1, (0, 0, 255), 10)
+        cv2.drawContours(warped_roi_image, max_contour, -1, (0, 0, 255), 10)
     except UnboundLocalError:
         rospy.loginfo("max contour not found")
 
     # draw a circle at centroid (https://www.geeksforgeeks.org/python-opencv-cv2-circle-method)
-    cv2.circle(cv_image, (cx, cy), 8, (180, 0, 0), -1)  # -1 fill the circle
-
-    # get the dimension of the image
-    height, width = cv_image.shape[0], cv_image.shape[1]
+    cv2.circle(warped_roi_image, (cx, cy), 8, (180, 0, 0), -1)  # -1 fill the circle
 
     # offset the x position of the vehicle to follow the lane
     cx -= 170
 
-    pub_yaw_rate(cv_image, cx, cy, height, width)
+    pub_yaw_rate(warped_roi_image, cx, cy)
 
-    cv2.imshow("CV Image", cv_image)
-    cv2.imshow("Filtered Image with ROI", filtered_image_with_roi)
+    # concatenate region of interest images to show in one window
+    filtered_roi_image_to_bgr = cv2.cvtColor(filtered_roi_image, cv2.COLOR_GRAY2BGR)
+    concatenated_roi_image = cv2.vconcat([roi_image, warped_roi_image, filtered_roi_image_to_bgr])
+
+    cv2.imshow("ROI, Warped ROI, Filters", concatenated_roi_image)
     cv2.waitKey(3)
 
 ################### filters and perspective ###################
@@ -141,35 +138,58 @@ def get_region_of_interest(image):
 
                    ]], dtype = np.int32)
 
-    mask = np.zeros_like(image)
-    cv2.fillPoly(mask, roi, 255)
-    cv2.imshow("ROI", mask)
+    blank_frame = np.zeros_like(image)
+    roi_mask = cv2.fillPoly(blank_frame, roi, (255, 255, 255))
 
-    # return the image with the region of interest
-    return cv2.bitwise_and(image , mask)
+    # return the region of interest image
+    roi_image = cv2.bitwise_and(image, roi_mask)
 
-def warp_perspective(image,
-                     destination_size=(1280, 720),
-                     source=np.float32([(0.43, 0.65), (0.58, 0.65), (0.1, 1), (1, 1)]),
-                     destination=np.float32([(0, 0), (1, 0), (0, 1), (1, 1)])):
+    # crop the black edges and return cropped image
+    y_nonzero, x_nonzero, _ = np.nonzero(roi_image)
+    return roi_image[np.min(y_nonzero):np.max(y_nonzero), np.min(x_nonzero):np.max(x_nonzero)]
 
-    # pass it the dimension of image (height, width)
-    image_size = np.float32([(image.shape[0], image.shape[1])])
-    source = source * image_size
+def warp_perspective(image):
 
-    # For destination points, I'm arbitrarily choosing some points to be a nice fit for displaying
-    # our warped result again, not exact, but close enough for our purposes
-    destination = destination * np.float32(destination_size)
+    # get the dimension of the image
+    height = image.shape[0]
+    width = image.shape[1]
+
+    # the region to warp
+    source = np.float32([[
+                     [0, 0],
+                     [width, 0],
+                     [0, height],
+                     [width, height]
+                  ]])
+
+    # use a graphic tool to help you visualize how you want the perspective warped:
+    # https://www1.lunapic.com/editor/?action=perspective
+    destination = np.float32([[
+                         [int(width / 2), 0],
+                         [width, 0],
+                         [0, height],
+                         [width, height]
+                      ]])
+
+    destination2 = np.float32([[
+                         [int(width / 2), 0],
+                         [width, 0],
+                         [0, height],
+                         [width, height]
+                      ]])
 
     # given source and destination points, calculate the perspective transform matrix
     perspective_transform_matrix = cv2.getPerspectiveTransform(source, destination)
 
-    # return the warped image
-    return cv2.warpPerspective(image, perspective_transform_matrix, destination_size)
+    # return the image with the warped perspective
+    return cv2.warpPerspective(image, perspective_transform_matrix, (width, height))
 
 ################### algorithms ###################
 
-def pub_yaw_rate(cv_image, cx, cy, height, width):
+def pub_yaw_rate(image, cx, cy):
+
+    # get the dimension of the image
+    height, width = image.shape[0], image.shape[1]
 
     # compute the coordinates for the center the vehicle's camera view
     camera_center_y = (height / 2)
