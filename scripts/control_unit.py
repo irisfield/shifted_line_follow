@@ -35,6 +35,8 @@ def detect_yellow_callback(yellow_detected):
     # after detecting yellow mark stop the vehicle for three seconds
 
     if RC.enable_drive:
+        drive_duration(1.0, 0.23, 2.3)
+    elif RC.enable_drive:
         # if yellow_detected.data and not drive_curve:
         #     # drive straight for x seconds up the yellow line
         #     drive_duration(0.5, 0.0, 0.95)
@@ -43,15 +45,13 @@ def detect_yellow_callback(yellow_detected):
         #     # from the yellow line, drive the curve for x seconds
         #     drive_duration(1.0, 0.123, 2.3)
         #     drive_curve = False
-        if RC.drive_curve:
-            drive_duration(1.0, 0.123, 2.3)
-        else:
-            # engage the line following algorithm
-            vel_msg.linear.x = RC.speed
-            vel_msg.angular.z = yaw_rate
 
-            # this message is being published by drive_duration
-            # cmd_vel_pub.publish(vel_msg)
+        # engage the line following algorithm
+        vel_msg.linear.x = RC.speed
+        vel_msg.angular.z = yaw_rate
+
+        # this message is being published by drive_duration
+        # cmd_vel_pub.publish(vel_msg)
     else:
         stop_vehicle()
 

@@ -20,18 +20,20 @@ n_laps = 0
 time_start = 0
 
 first_time = True
+show_once = True
 first_yellow_frame = True
 
 ################### callback ###################
 
 def steering_report_callback(report):
-    global speed_ms, speed_mph, first_time, time_start, time_elapsed
+    global speed_ms, speed_mph, first_time, time_start, time_elapsed, show_once
 
     speed_ms = report.speed
     speed_mph = speed_ms * 2.237
 
     # keep track of the total time the vehicle is in motion
     if (speed_ms > 0.0) and first_time:
+        # start the timer once
         time_start = rospy.Time.now()
         first_time = False
     elif (speed_ms > 0.0) and not first_time:
@@ -43,9 +45,14 @@ def steering_report_callback(report):
         # the vehicle stopped, pause the timer
         first_time = True
 
-    if (int(time_elapsed) % 2 == 1):
-        # display the instantaneous speed every other second
-        rospy.loginfo(f"Speed: {speed_ms} m/s | {speed_mph} mph")
+    # display the instantaneous speed every other second
+    if (int(time_elapsed) % 2 == 1) and show_once:
+        rospy.loginfo(f"Speed: {speed_ms:0.1f} m/s | {speed_mph:0.1f} mph")
+        show_once = False
+    elif (int(time_elapsed) % 2 == 1) and not show_once:
+        pass
+    else:
+        show_once = True
 
     return
 

@@ -32,8 +32,8 @@ def image_callback(camera_image):
     cv_image = cv2.resize(cv_image, None, fx=0.7, fy=0.7, interpolation=cv2.INTER_AREA)
 
     roi_image = get_region_of_interest(cv_image)
-    warped_roi_image = warp_perspective(roi_image)
-    filtered_roi_image = apply_filters(warped_roi_image)
+    # roi_image = warp_perspective(roi_image)
+    filtered_roi_image = apply_filters(roi_image)
 
     # find the contours in the binary image
     contours, _ = cv2.findContours(filtered_roi_image, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -57,23 +57,23 @@ def image_callback(camera_image):
 
     try:
         # draw the obtained contour lines (or the set of coordinates forming a line) on the original image
-        cv2.drawContours(warped_roi_image, max_contour, -1, (0, 0, 255), 10)
+        cv2.drawContours(roi_image, max_contour, -1, (0, 0, 255), 10)
     except UnboundLocalError:
         rospy.loginfo("max contour not found")
 
     # draw a circle at centroid (https://www.geeksforgeeks.org/python-opencv-cv2-circle-method)
-    cv2.circle(warped_roi_image, (cx, cy), 8, (180, 0, 0), -1)  # -1 fill the circle
+    cv2.circle(roi_image, (cx, cy), 8, (180, 0, 0), -1)  # -1 fill the circle
 
     # offset the x position of the vehicle to follow the lane
     cx -= 170
 
-    pub_yaw_rate(warped_roi_image, cx, cy)
+    pub_yaw_rate(roi_image, cx, cy)
 
     # concatenate region of interest images to show in one window
     filtered_roi_image_to_bgr = cv2.cvtColor(filtered_roi_image, cv2.COLOR_GRAY2BGR)
-    concatenated_roi_image = cv2.vconcat([roi_image, warped_roi_image, filtered_roi_image_to_bgr])
+    concatenated_roi_image = cv2.vconcat([roi_image, filtered_roi_image_to_bgr])
 
-    cv2.imshow("ROI, Warped ROI, Filters", concatenated_roi_image)
+    cv2.imshow("ROI and Filtered ROI", concatenated_roi_image)
     cv2.waitKey(3)
 
 ################### filters and perspective ###################
@@ -103,7 +103,7 @@ def apply_filters(cv_image):
     hls_image = cv2.cvtColor(balanced_image, cv2.COLOR_BGR2HLS)
 
     # lower and upper bounds for the color white
-    lower_bounds = np.uint8([0, RC.light_l, 0])
+    lower_bounds = np.uint8([0, RC.light_low, 0])
     upper_bounds = np.uint8([255, 255, 255])
     white_detection_mask = cv2.inRange(hls_image, lower_bounds, upper_bounds)
 
@@ -141,7 +141,7 @@ def get_region_of_interest(image):
     blank_frame = np.zeros_like(image)
     roi_mask = cv2.fillPoly(blank_frame, roi, (255, 255, 255))
 
-    # return the region of interest image
+    # combine the region of interest with the mask
     roi_image = cv2.bitwise_and(image, roi_mask)
 
     # crop the black edges and return cropped image
@@ -193,7 +193,8 @@ def pub_yaw_rate(image, cx, cy):
 
     # compute the coordinates for the center the vehicle's camera view
     camera_center_y = (height / 2)
-    camera_center_x = (width / 2)
+    # camera_center_x = (width / 2)
+    camera_center_x = 0
 
     # compute the difference between the x and y coordinates of the centroid and the vehicle's camera center
     center_error = cx - camera_center_x
