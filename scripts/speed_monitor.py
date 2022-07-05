@@ -21,6 +21,7 @@ first_yellow_frame = True
 
 def steering_report_callback(report):
     global first_time, time_start, time_elapsed, meter_per_second
+
     meter_per_second = report.speed
 
     # keep track of the total time the vehicle is in motion
@@ -35,6 +36,10 @@ def steering_report_callback(report):
     else:
         # the vehicle stopped, pause the timer
         first_time = True
+
+    if (int(time_elapsed) % 2 == 1):
+        # display the vehicle speed every other second
+        rospy.loginfo(f"Speed: {meter_per_second} m/s")
 
     return
 
