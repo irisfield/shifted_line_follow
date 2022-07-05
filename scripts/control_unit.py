@@ -33,14 +33,16 @@ def detect_yellow_callback(yellow_detected):
     global vel_msg, drive_curve
 
     if RC.enable_drive:
-        if yellow_detected.data and not drive_curve:
-            # drive straight for x seconds up the yellow line
-            drive_duration(0.5, 0.0, 0.95)
-            drive_curve = True
-        elif not yellow_detected.data and drive_curve:
-            # from the yellow line, drive the curve for x seconds
+        # if yellow_detected.data and not drive_curve:
+        #     # drive straight for x seconds up the yellow line
+        #     drive_duration(0.5, 0.0, 0.95)
+        #     drive_curve = True
+        # elif not yellow_detected.data and drive_curve:
+        #     # from the yellow line, drive the curve for x seconds
+        #     drive_duration(1.0, 0.123, 2.3)
+        #     drive_curve = False
+        if RC.drive_curve:
             drive_duration(1.0, 0.123, 2.3)
-            drive_curve = False
         else:
             # engage the line following algorithm
             vel_msg.linear.x = RC.speed
