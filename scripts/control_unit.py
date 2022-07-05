@@ -32,6 +32,8 @@ def yaw_rate_callback(angular_z):
 def detect_yellow_callback(yellow_detected):
     global vel_msg, drive_curve
 
+    # after detecting yellow mark stop the vehicle for three seconds
+
     if RC.enable_drive:
         # if yellow_detected.data and not drive_curve:
         #     # drive straight for x seconds up the yellow line
