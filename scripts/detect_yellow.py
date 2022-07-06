@@ -32,7 +32,6 @@ def image_callback(camera_image):
     # get the dimensions of the image
     #height, width = cv_image.shape[0], cv_image.shape[1]
 
-    
     # convert image to HLS
     cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HLS)
 
@@ -56,11 +55,7 @@ def image_callback(camera_image):
     # mask = cv2.bitwise_or(yellow_mask, white_mask)
     # masked = cv2.bitwise_and(cv_image, cv_image, mask = mask)
 
-    contours, hier = cv2.findContours (yellow_mask_cropped, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    if not contours: # contours do not exists?
-        yellow_detected.data = False
-        yellow_detected_pub.publish(yellow_detected)
-        
+    contours, _ = cv2.findContours (yellow_mask_cropped, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     # initialize the variables for computing the centroid and finding the largest contour
     max_area = 0
@@ -70,27 +65,24 @@ def image_callback(camera_image):
         # find the largest contour by its area
         max_contour = max(contours, key = cv2.contourArea)
         max_area = cv2.contourArea(max_contour)
-    #draw the obtained contour lines(or the set of coordinates forming a line) on the original image
-    cv2.drawContours(cv_image, max_contour, -1, (0,0,255), 5) # BGR
 
-    cv2.imshow("YELLOW_MASK_uncropped Window", yellow_mask_uncropped)
+    #draw the obtained contour lines(or the set of coordinates forming a line) on the original image
+    cv2.drawContours(cv_image, max_contour, -1, (0, 0, 255), 5)
+
+    # cv2.imshow("YELLOW_MASK_uncropped Window", yellow_mask_uncropped)
 
     # #If yellow blob big ---> say true
     if max_area > 100:
-        cv2.drawContours(yellow_mask_cropped, max_contour, -1, (0,255,255), 5) # BGR
-        cv2.imshow("YELLOW_MASK DETECTED!!!", yellow_mask_cropped)
+        cv2.drawContours(yellow_mask_cropped, max_contour, -1, (0, 255, 255), 5) # BGR
+        # cv2.imshow("YELLOW_MASK DETECTED!!!", yellow_mask_cropped)
         yellow_detected.data = True
         yellow_detected_pub.publish(yellow_detected)
-        cv2.waitKey(3)
     else:
         yellow_detected.data = False
 
     yellow_detected_pub.publish(yellow_detected)
-    cv2.waitKey(3)
 
-    # always publish false (WIP)
-    yellow_detected.data = False
-    yellow_detected_pub.publish(yellow_detected)
+    cv2.waitKey(3)
 
 ################### helper functions ###################
 def color_filter(image):
