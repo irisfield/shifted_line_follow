@@ -61,12 +61,12 @@ def detect_yellow_callback(yellow_detected):
     global n_laps, speed_ms, yellow_frames, time_elapsed, time_of_lap
 
     # average speed to do one full lap around the road test course
-    if yellow_detected.data and (yellow_frames < 5) and (speed_ms > 0.0):
+    if yellow_detected.data and (yellow_frames < 55) and (speed_ms > 0.0): # NOTE: add a condition to make it continous frames using time
         yellow_frames += 1
-    elif yellow_detected.data and (yellow_frames == 5) and (speed_ms > 0.0):
+    elif yellow_detected.data and (yellow_frames == 55) and (speed_ms > 0.0):
         n_laps += 1
         time_of_lap += time_elapsed - time_of_lap
-        rospy.loginfo(f"Lap: {n_laps} | Average Speed: {average_speed_mph} mph | Time Taken: {time_of_lap} ")
+        rospy.loginfo(f"Lap: {n_laps} | Average Speed: {average_speed_mph} mph | Time Taken: {time_of_lap} s")
         yellow_frames = 0
 
     return
