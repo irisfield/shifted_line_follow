@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import rospy
+import numpy as np
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool, Float32
-from dbw_polaris_msgs.msg import SteeringReport
+from dbw_polaris_msgs.msg import UlcReport
 
 # global variables
 speed_ms = 0.0
@@ -12,64 +13,61 @@ speed_limit_mph = 7.0
 average_speed_mph = 0.0
 distance_traveled = 0.0
 
-time_of_lap = 0.0
-length_of_road_course_in_meters = 86.32
 
 n_laps = 0
-time_start = 0
+time_of_lap = 0
+time_initial = 0
 time_elapsed = 0
+previous_time = 0
+yellow_frames = 0
 
-show_once = True
-start_once = True
-first_yellow_frame = True
+start_time = True
 
 ################### callback ###################
 
-def steering_report_callback(report):
-    global speed_ms, speed_mph, time_start, time_elapsed, start_once, show_once
+def ulc_report_callback(report):
+    global speed_ms, speed_mph, time_initial, time_elapsed, start_time
+    global previous_time, distance_traveled
 
-    speed_ms = report.speed
+    speed_ms = report.speed_meas
     speed_mph = speed_ms * 2.237
 
     # keep track of the total time the vehicle is in motion
-    if (speed_ms > 0.0) and start_once:
-        # start the timer once
-        time_start = rospy.Time.now()
-        start_once = False
-    elif (speed_ms > 0.0) and not start_once:
-        # the vehicle is in motion
-        time_end = rospy.Time.now()
-        time_elapsed += int((time_end - time_start).to_sec())
-        time_start = time_end
+    if (speed_ms > 0.0) and start_time:
+        # get the initial time in seconds
+        time_initial = report.header.stamp.secs
+        start_time = False
+    elif (speed_ms > 0.0) and not start_time:
+        # the vehicle is in motion, keep adding the time that has elapsed
+        time_final = report.header.stamp.secs
+        time_elapsed += time_final - time_initial
+        time_initial = time_final
     else:
-        # the vehicle stopped, pause the timer
-        start_once = True
+        # the vehicle stopped, pause the time
+        start_time = True
 
-    # display the instantaneous speed and the time every other second
-    if (time_elapsed % 2 == 1) and show_once:
-        rospy.loginfo(f"Speed: {speed_ms:0.1f} m/s -> {speed_mph:0.1f} mph | Time: {time_elapsed} s")
-        show_once = False
-    elif (time_elapsed % 2 == 1) and not show_once:
-        pass
-    else:
-        show_once = True
+    # compute distance traveled using Riemann sum
+    if (time_elapsed > 0) and (previous_time == 0):
+        previous_time = time_elapsed
+    elif (time_elapsed > 0) and ((time_elapsed - previous_time) == 1):
+        # distance formula: speed * change_in_time
+        distance_traveled += speed_ms * (time_elapsed - previous_time)
 
-    return
-
+        # display the instantaneous speed and the time every second
+        rospy.loginfo(f"Speed | Distance | Time : {speed_ms:0.1f} m/s -> {speed_mph:0.1f} mph | {distance_traveled:0.1f} m | {time_elapsed} s")
+        previous_time = time_elapsed
 
 def detect_yellow_callback(yellow_detected):
-    global n_laps, speed_ms, first_yellow_frame, time_elapsed, time_of_lap
+    global n_laps, speed_ms, yellow_frames, time_elapsed, time_of_lap
 
     # average speed to do one full lap around the road test course
-    if yellow_detected.data and first_yellow_frame and (time_elapsed > 0.0) and (speed_ms > 0.0):
+    if yellow_detected.data and (yellow_frames < 5) and (speed_ms > 0.0):
+        yellow_frames += 1
+    elif yellow_detected.data and (yellow_frames == 5) and (speed_ms > 0.0):
         n_laps += 1
-
         time_of_lap += time_elapsed - time_of_lap
-        rospy.loginfo(f"Lap: {n_laps} | Average Speed: {average_speed_mph} mph | Time: {time_of_lap} ")
-
-        first_yellow_frame = False
-    elif not yellow_detected.data and not first_yellow_frame and (speed_ms > 0.0):
-        first_yellow_frame = True
+        rospy.loginfo(f"Lap: {n_laps} | Average Speed: {average_speed_mph} mph | Time Taken: {time_of_lap} ")
+        yellow_frames = 0
 
     return
 
@@ -79,8 +77,7 @@ if __name__ == "__main__":
     rospy.init_node("speed_monitor", anonymous=True)
 
     rospy.Subscriber("yellow_detected", Bool, detect_yellow_callback)
-    # rospy.Subscriber("/vehicle/cmd_vel", Twist, cmd_vel_callback)
-    rospy.Subscriber("/vehicle/steering_report", SteeringReport, steering_report_callback)
+    rospy.Subscriber("/vehicle/ulc_report", UlcReport, ulc_report_callback)
 
     try:
         rospy.spin()
