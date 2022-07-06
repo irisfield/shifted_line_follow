@@ -13,39 +13,46 @@ average_speed_mph = 0.0
 distance_traveled = 0.0
 
 time_of_lap = 0.0
-time_elapsed = 0.0
 length_of_road_course_in_meters = 86.32
 
 n_laps = 0
 time_start = 0
+time_elapsed = 0
 
-first_time = True
+show_once = True
+start_once = True
 first_yellow_frame = True
 
 ################### callback ###################
 
 def steering_report_callback(report):
-    global speed_ms, speed_mph, first_time, time_start, time_elapsed
+    global speed_ms, speed_mph, time_start, time_elapsed, start_once, show_once
 
     speed_ms = report.speed
     speed_mph = speed_ms * 2.237
 
     # keep track of the total time the vehicle is in motion
-    if (speed_ms > 0.0) and first_time:
+    if (speed_ms > 0.0) and start_once:
+        # start the timer once
         time_start = rospy.Time.now()
-        first_time = False
-    elif (speed_ms > 0.0) and not first_time:
+        start_once = False
+    elif (speed_ms > 0.0) and not start_once:
         # the vehicle is in motion
         time_end = rospy.Time.now()
-        time_elapsed += (time_end - time_start).to_sec()
+        time_elapsed += int((time_end - time_start).to_sec())
         time_start = time_end
     else:
         # the vehicle stopped, pause the timer
-        first_time = True
+        start_once = True
 
-    if (int(time_elapsed) % 2 == 1):
-        # display the instantaneous speed every other second
-        rospy.loginfo(f"Speed: {speed_ms} m/s | {speed_mph} mph")
+    # display the instantaneous speed and the time every other second
+    if (time_elapsed % 2 == 1) and show_once:
+        rospy.loginfo(f"Speed: {speed_ms:0.1f} m/s -> {speed_mph:0.1f} mph | Time: {time_elapsed} s")
+        show_once = False
+    elif (time_elapsed % 2 == 1) and not show_once:
+        pass
+    else:
+        show_once = True
 
     return
 
