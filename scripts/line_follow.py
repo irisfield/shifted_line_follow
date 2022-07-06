@@ -126,15 +126,23 @@ def apply_filters(cv_image):
     # find and return the edges in in smoothed image
     return cv2.Canny(smoothed_gray_image, 200, 255)
 
-def get_region_of_interest(image):
+def get_region_of_interest(image):                                      
+
+    width = image.shape[1]
+    height = image.shape[0]
+
+    width = width / 8
+    height = height / 8
 
     # get the region of interest
     roi = np.array([[
 
-                     [360, 540], # BOTTOM LEFT
-                     [360, 269], # TOP LEFT
-                     [540, 269], # TOP RIGHT
-                     [720, 538]  # BOTTOM RIGHT
+                       [width*4, height*8],
+                       [width*4, height*4],
+                       [width*5, (height*4)],
+                       [width*6 , (height*5)],
+                       [width*7 , (height*6)],
+                       [width*8, height*8]
 
                    ]], dtype = np.int32)
 
