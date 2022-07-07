@@ -5,7 +5,6 @@ import rospy
 import numpy as np
 from std_msgs.msg import Float32
 from sensor_msgs.msg import Image
-from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge, CvBridgeError
 from dynamic_reconfigure.server import Server
 from shifted_line_pkg.cfg import LineFollowConfig
