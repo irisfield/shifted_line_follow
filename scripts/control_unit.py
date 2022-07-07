@@ -25,21 +25,28 @@ def yaw_rate_callback(angular_z):
     global yaw_rate
     yaw_rate = angular_z.data
 
+def distance_report_callback(report):
+    global distance_m
+    distance_m = report.data
+    return
+
 def yellow_line_callback(yellow_line):
     global vel_msg
 
     if RC.enable_drive:
         if yellow_line.data:
-            print("DRIVING")
+            previous_distance = distance_m
             # the yellow line was detected, drive to it
-            drive_duration(1.0, 0.0, 4.0)
+            drive_duration(1.0, 0.0, 2.0)
+
+            # this is experimental based on distance
+            # drive_duration_distance(1.0, 0.0, 30.0)
 
             # stop at the yelllow line for 3 seconds
             drive_duration(0.0, 0.0, 3.0)
 
             # drive the curve until it finds the other lane
             drive_duration(1.0, 0.23, 2.3)
-            print("DONE")
         else:
             # engage the line following algorithm
             vel_msg.linear.x = RC.speed
@@ -68,6 +75,24 @@ def drive_duration(speed, yaw_rate, duration):
         cmd_vel_pub.publish(vel_msg)
 
     # stop the vehicle after driving the duration
+    stop_vehicle()
+
+    return
+
+def drive_duration_distance(speed, yaw_rate, distance_to_travel_in_meters):
+    previous_distance = distance_m
+    distance_traveled = 0.0
+
+    while(distance_traveled <= distance_to_travel_in_meters):
+        # compute the distance traveled
+        distance_traveled += distance_m - previous_distance
+
+        vel_msg.linear.x = speed
+        vel_msg.angular.z = yaw_rate
+
+        cmd_vel_pub.publish(vel_msg)
+
+    # stop the vehicle after driving the distance
     stop_vehicle()
 
     return
@@ -110,6 +135,7 @@ if __name__ == "__main__":
 
     rospy.Subscriber("/yaw_rate", Float32, yaw_rate_callback)
     rospy.Subscriber("/yellow_line_detected", Bool, yellow_line_callback)
+    rospy.Subscriber("/sdt_report/distance_m", Float32, distance_report_callback)
 
     cmd_vel_pub = rospy.Publisher("/vehicle/cmd_vel", Twist, queue_size=1)
     enable_drive_pub = rospy.Publisher("/vehicle/enable", Empty, queue_size=1)
