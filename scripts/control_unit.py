@@ -14,9 +14,6 @@ vel_msg = Twist()
 vel_msg.linear.x = 0.0
 vel_msg.angular.z = 0.0
 
-# since the car starts at the yellow line, drive the first curve
-drive_curve = True
-
 ################### callback ###################
 
 def dynamic_reconfigure_callback(config, level):
@@ -27,31 +24,29 @@ def dynamic_reconfigure_callback(config, level):
 def yaw_rate_callback(angular_z):
     global yaw_rate
     yaw_rate = angular_z.data
-    return
 
-def detect_yellow_callback(yellow_detected):
-    global vel_msg, drive_curve
-
-    # after detecting yellow mark stop the vehicle for three seconds
+def yellow_line_callback(yellow_line):
+    global vel_msg
 
     if RC.enable_drive:
-        drive_duration(1.0, 0.23, 2.3)
-    elif RC.enable_drive:
-        # if yellow_detected.data and not drive_curve:
-        #     # drive straight for x seconds up the yellow line
-        #     drive_duration(0.5, 0.0, 0.95)
-        #     drive_curve = True
-        # elif not yellow_detected.data and drive_curve:
-        #     # from the yellow line, drive the curve for x seconds
-        #     drive_duration(1.0, 0.123, 2.3)
-        #     drive_curve = False
+        if yellow_line.data:
+            print("DRIVING")
+            # the yellow line was detected, drive to it
+            drive_duration(1.0, 0.0, 4.0)
 
-        # engage the line following algorithm
-        vel_msg.linear.x = RC.speed
-        vel_msg.angular.z = yaw_rate
+            # stop at the yelllow line for 3 seconds
+            drive_duration(0.0, 0.0, 3.0)
 
-        # this message is being published by drive_duration
-        # cmd_vel_pub.publish(vel_msg)
+            # drive the curve until it finds the other lane
+            drive_duration(1.0, 0.23, 2.3)
+            print("DONE")
+        else:
+            # engage the line following algorithm
+            vel_msg.linear.x = RC.speed
+            vel_msg.angular.z = yaw_rate
+
+            # this is being publish in publish_vel_msg()
+            # cmd_vel_pub.publish(vel_msg)
     else:
         stop_vehicle()
 
@@ -60,12 +55,12 @@ def detect_yellow_callback(yellow_detected):
 ################### helper functions ###################
 
 def drive_duration(speed, yaw_rate, duration):
-    time_start = rospy.Time.now()
+    time_initial = rospy.Time.now()
     time_elapsed = 0.0
 
     while(time_elapsed <= duration):
         # compute elapsed time in seconds
-        time_elapsed = (rospy.Time.now() - time_start).to_sec()
+        time_elapsed = (rospy.Time.now() - time_initial).to_sec()
 
         vel_msg.linear.x = speed
         vel_msg.angular.z = yaw_rate
@@ -77,7 +72,7 @@ def drive_duration(speed, yaw_rate, duration):
 
     return
 
-def drive_vehicle():
+def publish_vel_msg():
     global vel_msg
 
     rate = rospy.Rate(20)
@@ -94,8 +89,9 @@ def drive_vehicle():
             vel_msg.linear.x = 0.0
             vel_msg.angular.z = 0.0
 
-        # publish empty message to enable drive-by-wire system
+        # publish empty message to prevent the drive-by-wire system from timing out
         enable_drive_pub.publish(enable_drive_msg)
+        # publish the vel_msg here
         cmd_vel_pub.publish(vel_msg)
         rate.sleep()
 
@@ -112,16 +108,15 @@ def stop_vehicle():
 if __name__ == "__main__":
     rospy.init_node("control_unit", anonymous=True)
 
-    rospy.Subscriber("yellow_detected", Bool, detect_yellow_callback)
-    rospy.Subscriber("yaw_rate", Float32, yaw_rate_callback)
+    rospy.Subscriber("/yaw_rate", Float32, yaw_rate_callback)
+    rospy.Subscriber("/yellow_line_detected", Bool, yellow_line_callback)
 
     cmd_vel_pub = rospy.Publisher("/vehicle/cmd_vel", Twist, queue_size=1)
     enable_drive_pub = rospy.Publisher("/vehicle/enable", Empty, queue_size=1)
 
     dynamic_reconfigure_server = Server(ControlUnitConfig, dynamic_reconfigure_callback)
 
-    # publish velocity message
-    drive_vehicle()
+    publish_vel_msg()
 
     try:
       rospy.spin()

@@ -69,9 +69,10 @@ def image_callback(camera_image):
 
     pub_yaw_rate(roi_image, cx, cy)
 
-    # concatenate region of interest images to show in one window
-    filtered_roi_image_to_bgr = cv2.cvtColor(filtered_roi_image, cv2.COLOR_GRAY2BGR)
-    concatenated_roi_image = cv2.vconcat([roi_image, filtered_roi_image_to_bgr])
+    # concatenate the roi images to show in a single window
+    # the shape of the images must have the same length: len(image.shape)
+    filtered_roi_image_with_channel = cv2.cvtColor(filtered_roi_image, cv2.COLOR_GRAY2BGR)
+    concatenated_roi_image = cv2.vconcat([roi_image, filtered_roi_image_with_channel])
 
     cv2.imshow("ROI and Filtered ROI", concatenated_roi_image)
     cv2.waitKey(3)
@@ -126,7 +127,7 @@ def apply_filters(cv_image):
     # find and return the edges in in smoothed image
     return cv2.Canny(smoothed_gray_image, 200, 255)
 
-def get_region_of_interest(image):                                      
+def get_region_of_interest(image):
 
     width = image.shape[1]
     height = image.shape[0]
@@ -231,14 +232,13 @@ def pub_yaw_rate(image, cx, cy):
     return
 
 ################### main ###################
-
 if __name__ == "__main__":
 
-    rospy.init_node("follow_line", anonymous=True)
+    rospy.init_node("line_follow", anonymous=True)
 
     rospy.Subscriber("/camera/image_raw", Image, image_callback)
 
-    yaw_rate_pub = rospy.Publisher("yaw_rate", Float32, queue_size=1)
+    yaw_rate_pub = rospy.Publisher("/yaw_rate", Float32, queue_size=1)
 
     dynamic_reconfigure_server = Server(LineFollowConfig, dynamic_reconfigure_callback)
 
