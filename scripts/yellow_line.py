@@ -70,17 +70,15 @@ def image_callback(camera_image):
     cv2.drawContours(roi_image, max_contour, -1, (0, 0, 255), 8)
 
     # this number should be determined based on speed
-    n = 7
+    num_frames = 7
 
     # detect yellow for a continuous number of frames
-    if (max_area > 700) and (yellow_frames < n) and (speed_ms > 0.0):
+    if (max_area > 700) and (yellow_frames < num_frames) and (speed_ms > 0.0):
         yellow_msg.data = False
         yellow_frames += 1
-        print(f"YELLOW: {yellow_frames}")
-    elif (yellow_frames == n) and (speed_ms > 0.0):
+    elif (yellow_frames == num_frames) and (speed_ms > 0.0):
         yellow_msg.data = True
         yellow_frames = 0
-        print("TRUE")
     else:
         yellow_msg.data = False
         yellow_frames = 0

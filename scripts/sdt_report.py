@@ -4,7 +4,7 @@
 
 import rospy
 import numpy as np
-from std_msgs.msg import Bool, Float32, Int32
+from std_msgs.msg import Float32, Int32
 from dbw_polaris_msgs.msg import SteeringReport
 
 # global variables
