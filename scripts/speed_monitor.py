@@ -4,7 +4,7 @@ import rospy
 import numpy as np
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool, Float32
-from dbw_polaris_msgs.msg import UlcReport
+from dbw_polaris_msgs.msg import SteeringReport
 
 # global variables
 speed_ms = 0.0
@@ -25,11 +25,11 @@ start_time = True
 
 ################### callback ###################
 
-def ulc_report_callback(report):
+def steering_report_callback(report):
     global speed_ms, speed_mph, time_initial, time_elapsed, start_time
     global previous_time, distance_traveled
 
-    speed_ms = report.speed_meas
+    speed_ms = report.speed
     speed_mph = speed_ms * 2.237
 
     # keep track of the total time the vehicle is in motion
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     rospy.init_node("speed_monitor", anonymous=True)
 
     rospy.Subscriber("yellow_detected", Bool, detect_yellow_callback)
-    rospy.Subscriber("/vehicle/ulc_report", UlcReport, ulc_report_callback)
+    rospy.Subscriber("/vehicle/steering_report", SteeringReport, steering_report_callback)
 
     try:
         rospy.spin()
