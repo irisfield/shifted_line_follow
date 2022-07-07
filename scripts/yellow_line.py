@@ -90,7 +90,9 @@ def image_callback(camera_image):
     yellow_mask_channel = cv2.cvtColor(yellow_mask, cv2.COLOR_GRAY2BGR)
     concatenated_roi_image = cv2.hconcat([roi_image, yellow_mask_channel])
 
-    cv2.imshow("Yellow ROI Image", concatenated_roi_image)
+    cv2.putText(concatenated_roi_image, f"MAX_AREA: {max_area}", (25, 250), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 0), 2)
+    cv2.putText(concatenated_roi_image, f"DETECTED: {yellow_msg.data}", (25, 300), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 100), 2)
+    cv2.imshow("Yellow Line", concatenated_roi_image)
     cv2.waitKey(3)
 
 ################### main ###################
