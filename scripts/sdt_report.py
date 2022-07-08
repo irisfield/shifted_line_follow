@@ -53,7 +53,7 @@ def steering_report_callback(report):
     elif ((time_elapsed_secs - previous_time) == 1):
         distance_m += speed_ms * (time_elapsed_secs - previous_time)
         # display the instantaneous speed and the time every second
-        # rospy.loginfo(f"Instantaneous Speed: {speed_ms:0.1f} m/s -> {speed_mph:0.1f} mph | Distance: {distance_m:0.1f} m | Time: {time_elapsed_secs} s")
+        rospy.loginfo(f"Instantaneous Speed: {speed_ms:0.1f} m/s -> {speed_mph:0.1f} mph | Distance: {distance_m:0.1f} m | Time: {time_elapsed_secs} s")
         previous_time = time_elapsed_secs
 
     time_msg.data = time_elapsed_secs
