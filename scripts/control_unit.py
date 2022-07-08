@@ -142,6 +142,7 @@ if __name__ == "__main__":
 
     dynamic_reconfigure_server = Server(ControlUnitConfig, dynamic_reconfigure_callback)
 
+    # publish velocity message
     publish_vel_msg()
 
     try:
