@@ -73,7 +73,7 @@ def image_callback(camera_image):
     num_frames = 7
 
     # detect yellow for a continuous number of frames
-    if (max_area > 700) and (yellow_frames < num_frames) and (speed_ms > 0.0):
+    if (max_area > 400) and (yellow_frames < num_frames) and (speed_ms > 0.0):
         yellow_msg.data = False
         yellow_frames += 1
     elif (yellow_frames == num_frames) and (speed_ms > 0.0):

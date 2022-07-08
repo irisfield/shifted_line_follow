@@ -64,7 +64,7 @@ def image_callback(camera_image):
     cv2.circle(roi_image, (cx, cy), 8, (180, 0, 0), -1)  # -1 fill the circle
 
     # offset the x position of the vehicle to follow the lane
-    cx -= 150
+    cx -= 130
 
     pub_yaw_rate(roi_image, cx, cy)
 
