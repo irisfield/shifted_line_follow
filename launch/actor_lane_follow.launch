@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <launch>
-  <arg name="line_type" default="inner"/>
+  <arg name="line_type" default="outer"/>
 
   <!-- launch the drive-by-write system -->
   <arg name="sys" default="true"/>

@@ -36,9 +36,6 @@ def yellow_line_callback(yellow_line):
     if RC.enable_drive:
         if yellow_line.data:
             previous_distance = distance_m
-            # the yellow line was detected, drive to it
-            drive_duration(1.0, 0.0, 2.0)
-
             # this is experimental based on distance
             # drive_duration_distance(1.0, 0.0, 30.0)
 
@@ -46,7 +43,8 @@ def yellow_line_callback(yellow_line):
             drive_duration(0.0, 0.0, 3.0)
 
             # drive the curve until it finds the other lane
-            drive_duration(1.0, 0.23, 2.3)
+            drive_duration(1.0, 0.0, 2.0)
+            drive_duration(1.0, 0.12, 13.0)
         else:
             # engage the line following algorithm
             vel_msg.linear.x = RC.speed
