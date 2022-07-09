@@ -2,7 +2,7 @@
 
 <launch>
 
-  <arg name="algo" default="outer"/>
+  <arg name="algo" default="inner"/>
 
   <!-- launch the dynamic reconfigure GUI -->
   <node pkg="rqt_reconfigure" name="rqt_console" type="rqt_reconfigure" args="-t"/>

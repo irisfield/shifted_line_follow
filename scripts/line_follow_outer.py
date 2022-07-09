@@ -20,7 +20,7 @@ def dynamic_reconfigure_callback(config, level):
     return config
 
 def image_callback(camera_image):
-
+    global cx, cy
     try:
         # convert camera_image into an opencv-compatible image
         cv_image = CvBridge().imgmsg_to_cv2(camera_image, "bgr8")
@@ -133,20 +133,32 @@ def get_region_of_interest(image):
     width = width / 8
     height = height / 8
 
+
+
     # get the region of interest
-    roi = np.array([[
+    try:
+        droi = np.array([[
+
+                       [width * 4, height * 8],
+                       [width * 4, height * 4],
+                       [(width * 5)-45, height * 4],
+                       [(width*7)+cx, height * 6],
+                       [(width * 7)+50, height * 8]
+
+                   ]], dtype = np.int32)
+    except:
+        droi = np.array([[
 
                        [width * 4, height * 8],
                        [width * 4, height * 4],
                        [width * 5, height * 4],
-                       [width * 6, height * 5],
-                       [width * 7, height * 6],
-                       [width * 8, height * 8]
+                       [(width*7), height * 6],
+                       [(width * 7)+50, height * 8]
 
                    ]], dtype = np.int32)
 
     blank_frame = np.zeros_like(image)
-    roi_mask = cv2.fillPoly(blank_frame, roi, (255, 255, 255))
+    roi_mask = cv2.fillPoly(blank_frame, droi, (255, 255, 255))
 
     # combine the region of interest with the mask
     roi_image = cv2.bitwise_and(image, roi_mask)
