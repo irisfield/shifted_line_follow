@@ -31,7 +31,6 @@ def image_callback(camera_image):
     cv_image = cv2.resize(cv_image, None, fx=0.7, fy=0.7, interpolation=cv2.INTER_AREA)
 
     roi_image = get_region_of_interest(cv_image)
-    # roi_image = warp_perspective(roi_image)
     filtered_roi_image = apply_filters(roi_image)
 
     # find the contours in the binary image
@@ -83,11 +82,11 @@ def apply_white_balance(cv_image):
     # convert image to the LAB color space
     lab_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2LAB)
 
-    average_a = np.average(lab_image[:,:,1])
-    average_b = np.average(lab_image[:,:,2])
+    average_a = np.average(lab_image[:, :, 1])
+    average_b = np.average(lab_image[:, :, 2])
 
-    lab_image[:,:,1] = lab_image[:,:,1] - ((average_a - 128) * (lab_image[:,:,0] / 255.0) * 1.1)
-    lab_image[:,:,2] = lab_image[:,:,2] - ((average_b - 128) * (lab_image[:,:,0] / 255.0) * 1.1)
+    lab_image[:, :, 1] = lab_image[:, :, 1] - ((average_a - 128) * (lab_image[:, :, 0] / 255.0) * 1.1)
+    lab_image[:, :, 2] = lab_image[:, :, 2] - ((average_b - 128) * (lab_image[:, :, 0] / 255.0) * 1.1)
 
     return cv2.cvtColor(lab_image, cv2.COLOR_LAB2BGR)
 
@@ -137,12 +136,12 @@ def get_region_of_interest(image):
     # get the region of interest
     roi = np.array([[
 
-                       [width*4, height*8],
-                       [width*4, height*4],
-                       [width*5, height*4],
-                       [width*6, height*5],
-                       [width*7, height*6],
-                       [width*8, height*8]
+                       [width * 4, height * 8],
+                       [width * 4, height * 4],
+                       [width * 5, height * 4],
+                       [width * 6, height * 5],
+                       [width * 7, height * 6],
+                       [width * 8, height * 8]
 
                    ]], dtype = np.int32)
 
@@ -155,42 +154,6 @@ def get_region_of_interest(image):
     # crop the black edges and return cropped image
     y_nonzero, x_nonzero, _ = np.nonzero(roi_image)
     return roi_image[np.min(y_nonzero):np.max(y_nonzero), np.min(x_nonzero):np.max(x_nonzero)]
-
-def warp_perspective(image):
-
-    # get the dimension of the image
-    height = image.shape[0]
-    width = image.shape[1]
-
-    # the region to warp
-    source = np.float32([[
-                     [0, 0],
-                     [width, 0],
-                     [0, height],
-                     [width, height]
-                  ]])
-
-    # use a graphic tool to help you visualize how you want the perspective warped:
-    # https://www1.lunapic.com/editor/?action=perspective
-    destination = np.float32([[
-                         [int(width / 2), 0],
-                         [width, 0],
-                         [0, height],
-                         [width, height]
-                      ]])
-
-    destination2 = np.float32([[
-                         [int(width / 2), 0],
-                         [width, 0],
-                         [0, height],
-                         [width, height]
-                      ]])
-
-    # given source and destination points, calculate the perspective transform matrix
-    perspective_transform_matrix = cv2.getPerspectiveTransform(source, destination)
-
-    # return the image with the warped perspective
-    return cv2.warpPerspective(image, perspective_transform_matrix, (width, height))
 
 ################### algorithms ###################
 
