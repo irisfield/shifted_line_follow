@@ -38,7 +38,7 @@ def yellow_line_callback(yellow_line):
 
             # drive the curve until it finds the other lane
             drive_duration(1.0, 0.0, 2.0)
-            drive_duration(1.0, 0.12, 13.0)
+            drive_duration(1.0, 0.12, 16.0)
         else:
             # engage the line following algorithm
             vel_msg.linear.x = RC.speed
@@ -79,7 +79,7 @@ def publish_vel_msg():
     time_start = rospy.Time.now()
 
     # wait two seconds for the drive-by-wire system to synchronize
-    dbw_wait_time = 2
+    dbw_wait_time = 2.0
 
     while (not rospy.is_shutdown()):
         time_elapsed = (rospy.Time.now() - time_start).to_sec()
