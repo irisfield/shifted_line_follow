@@ -14,7 +14,7 @@
   <node pkg="shifted_line_pkg" name="control_unit" type="control_unit.py" required="true" output="screen"/>
 
   <!-- launch the line follow node -->
-  <node pkg="shifted_line_pkg" name="$(arg line_type)_line_follow" type="$(arg line_type)_line_follow.py" required="true" output="screen"/>
+  <node pkg="shifted_line_pkg" name="line_follow_$(arg line_type)" type="line_follow_$(arg line_type).py" required="true" output="screen"/>
 
   <!-- launch the sdt report node -->
   <node pkg="shifted_line_pkg" name="sdt_report" type="sdt_report.py" required="true" output="screen"/>
