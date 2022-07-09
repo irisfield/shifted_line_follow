@@ -16,6 +16,9 @@ yellow_msg = Bool()
 
 previous_time = 0
 yellow_frames = 0
+
+publish_once = True
+
 ################### callback ###################
 
 def dynamic_reconfigure_callback(config, level):
@@ -34,7 +37,7 @@ def speed_report_callback(report):
     return
 
 def image_callback(camera_image):
-    global previous_time, yellow_frames
+    global previous_time, yellow_frames, publish_once
 
     try:
         cv_image = CvBridge().imgmsg_to_cv2(camera_image, "bgr8")
@@ -48,9 +51,6 @@ def image_callback(camera_image):
     roi_image = hls_image[435:786, 340:500]
 
     # specify the hls values for yellow
-    # initial values:
-    # lower_bounds = np.uint8([10, 0, 100])
-    # upper_bounds = np.uint8([40, 255, 255])
     lower_bounds = np.uint8([10, RC.light_low, RC.sat_low])
     upper_bounds = np.uint8([40, 255, 255])
     yellow_mask = cv2.inRange(roi_image, lower_bounds, upper_bounds)
@@ -76,9 +76,12 @@ def image_callback(camera_image):
     if (max_area > 400) and (yellow_frames < num_frames) and (speed_ms > 0.0):
         yellow_msg.data = False
         yellow_frames += 1
-    elif (yellow_frames == num_frames) and (speed_ms > 0.0):
+    elif (yellow_frames == num_frames) and (speed_ms > 0.0) and publish_once:
         yellow_msg.data = True
+        publish_once = False
         yellow_frames = 0
+    elif (max_area < 5.0) and (yellow_frames == 0) and not publish_once:
+        publish_once = True
     else:
         yellow_msg.data = False
         yellow_frames = 0
