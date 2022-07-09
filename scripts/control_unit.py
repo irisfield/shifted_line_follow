@@ -25,19 +25,13 @@ def yaw_rate_callback(angular_z):
     global yaw_rate
     yaw_rate = angular_z.data
 
-def distance_report_callback(report):
-    global distance_m
-    distance_m = report.data
-    return
-
 def yellow_line_callback(yellow_line):
     global vel_msg
 
     if RC.enable_drive:
         if yellow_line.data:
-            previous_distance = distance_m
-            # this is experimental based on distance
-            # drive_duration_distance(1.0, 0.0, 30.0)
+            # drive to the yellow line
+            drive_duration(1.0, 0.0, 3.0)
 
             # stop at the yelllow line for 3 seconds
             drive_duration(0.0, 0.0, 3.0)
@@ -64,33 +58,14 @@ def drive_duration(speed, yaw_rate, duration):
     time_elapsed = 0.0
 
     while(time_elapsed <= duration):
+        vel_msg.linear.x = speed
+        vel_msg.angular.z = yaw_rate
+        cmd_vel_pub.publish(vel_msg)
+
         # compute elapsed time in seconds
         time_elapsed = (rospy.Time.now() - time_initial).to_sec()
 
-        vel_msg.linear.x = speed
-        vel_msg.angular.z = yaw_rate
-
-        cmd_vel_pub.publish(vel_msg)
-
     # stop the vehicle after driving the duration
-    stop_vehicle()
-
-    return
-
-def drive_duration_distance(speed, yaw_rate, distance_to_travel_in_meters):
-    previous_distance = distance_m
-    distance_traveled = 0.0
-
-    while(distance_traveled <= distance_to_travel_in_meters):
-        # compute the distance traveled
-        distance_traveled += distance_m - previous_distance
-
-        vel_msg.linear.x = speed
-        vel_msg.angular.z = yaw_rate
-
-        cmd_vel_pub.publish(vel_msg)
-
-    # stop the vehicle after driving the distance
     stop_vehicle()
 
     return
@@ -98,17 +73,18 @@ def drive_duration_distance(speed, yaw_rate, distance_to_travel_in_meters):
 def publish_vel_msg():
     global vel_msg
 
-    rate = rospy.Rate(20)
+    rate = rospy.Rate(25)
     enable_drive_msg = Empty()
 
-    # wait two seconds for the drive-by-wire system to synchronize
     time_start = rospy.Time.now()
-    time_to_wait = 2
+
+    # wait two seconds for the drive-by-wire system to synchronize
+    dbw_wait_time = 2
 
     while (not rospy.is_shutdown()):
         time_elapsed = (rospy.Time.now() - time_start).to_sec()
 
-        if (time_elapsed < time_to_wait):
+        if (time_elapsed <= dbw_wait_time):
             vel_msg.linear.x = 0.0
             vel_msg.angular.z = 0.0
 
@@ -133,7 +109,6 @@ if __name__ == "__main__":
 
     rospy.Subscriber("/yaw_rate", Float32, yaw_rate_callback)
     rospy.Subscriber("/yellow_line_detected", Bool, yellow_line_callback)
-    rospy.Subscriber("/sdt_report/distance_m", Float32, distance_report_callback)
 
     cmd_vel_pub = rospy.Publisher("/vehicle/cmd_vel", Twist, queue_size=1)
     enable_drive_pub = rospy.Publisher("/vehicle/enable", Empty, queue_size=1)
