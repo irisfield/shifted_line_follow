@@ -2,7 +2,7 @@
 
 <launch>
 
-  <arg name="line_type" default="inner"/>
+  <arg name="algo" default="outer"/>
 
   <!-- launch the dynamic reconfigure GUI -->
   <node pkg="rqt_reconfigure" name="rqt_console" type="rqt_reconfigure" args="-t"/>
@@ -14,7 +14,7 @@
   <node pkg="shifted_line_pkg" name="control_unit" type="control_unit.py" required="true" output="screen"/>
 
   <!-- launch the line follow node -->
-  <node pkg="shifted_line_pkg" name="line_follow_$(arg line_type)" type="line_follow_$(arg line_type).py" required="true" output="screen"/>
+  <node pkg="shifted_line_pkg" name="line_follow_$(arg algo)" type="line_follow_$(arg algo).py" required="true" output="screen"/>
 
   <!-- launch the sdt report node -->
   <node pkg="shifted_line_pkg" name="sdt_report" type="sdt_report.py" required="true" output="screen"/>
