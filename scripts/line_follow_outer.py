@@ -136,26 +136,15 @@ def get_region_of_interest(image):
 
 
     # get the region of interest
-    try:
-        droi = np.array([[
+    droi = np.array([[
 
-                       [width * 4, height * 8],
-                       [width * 4, height * 4],
-                       [(width * 5)-45, height * 4],
-                       [(width*7)+cx, height * 6],
-                       [(width * 7)+50, height * 8]
+                   [width * 4, height * 8],
+                   [width * 4, height * 4],
+                   [width * 5, height * 4],
+                   [(width * 7), height * 6],
+                   [(width * 7) + 50, height * 8]
 
-                   ]], dtype = np.int32)
-    except:
-        droi = np.array([[
-
-                       [width * 4, height * 8],
-                       [width * 4, height * 4],
-                       [width * 5, height * 4],
-                       [(width*7), height * 6],
-                       [(width * 7)+50, height * 8]
-
-                   ]], dtype = np.int32)
+               ]], dtype = np.int32)
 
     blank_frame = np.zeros_like(image)
     roi_mask = cv2.fillPoly(blank_frame, droi, (255, 255, 255))
@@ -187,7 +176,7 @@ def pub_yaw_rate(image, cx, cy):
     #       less than 3.0 - deviates a little inward when turning
     #                 3.0 - follows the line exactly
     #       more than 3.0 - deviates a little outward when turning
-    correction = RC.offset_yaw * camera_center_y
+    correction = 3.0 * camera_center_y
 
     # compute the yaw rate proportion to the difference between centroid and camera center
     angular_z = float(center_error / correction)
