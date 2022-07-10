@@ -31,7 +31,7 @@ def yellow_line_callback(yellow_line):
     if RC.enable_drive:
         if yellow_line.data:
             # drive to the yellow line
-            drive_duration(1.0, 0.0, 3.0)
+            drive_duration(1.0, 0.0, 4.0)
 
             # stop at the yelllow line for 3 seconds
             drive_duration(0.0, 0.0, 3.0)
