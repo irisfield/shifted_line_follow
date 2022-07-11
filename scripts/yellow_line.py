@@ -14,7 +14,8 @@ from shifted_line_pkg.cfg import YellowLineConfig
 # global variables
 yellow_msg = Bool()
 
-previous_time = 0
+previous_time = 0.0
+
 yellow_frames = 0
 
 publish_once = True

@@ -133,8 +133,6 @@ def get_region_of_interest(image):
     width = width / 8
     height = height / 8
 
-
-
     # get the region of interest
     droi = np.array([[
 

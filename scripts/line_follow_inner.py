@@ -65,7 +65,7 @@ def image_callback(camera_image):
     cv2.circle(roi_image, (cx, cy), 8, (180, 0, 0), -1)  # -1 fill the circle
 
     # offset the x position of the vehicle to follow the lane
-    cx -= 130
+    cx -= 200
 
     pub_yaw_rate(roi_image, cx, cy)
 
@@ -135,7 +135,7 @@ def get_region_of_interest(image):
     width = width / 8
     height = height / 8
 
-
+    """
     # get the region of interest
     try:
         print("we are dynamically changing the ROI")
@@ -151,14 +151,14 @@ def get_region_of_interest(image):
                        [width*4, height*8]
 
                    ]], dtype = np.int32)
-    except:
-        droi = np.array([[
+    """
+    droi = np.array([[
 
-                       [width*8, height*8],
-                       [width*8, height*4],
-                       [width*7, (height*4)],
-                       [width*5 , (height*6)],
-                       [width*4, height*8]
+                       [width * 8, height * 8],
+                       [width * 8, height * 4],
+                       [width * 7, height * 4],
+                       [width * 5, height * 6],
+                       [width * 4, height * 8]
 
                    ]], dtype = np.int32)
     blank_frame = np.zeros_like(image)
@@ -215,9 +215,8 @@ def pub_yaw_rate(image, cx, cy):
     height, width = image.shape[0], image.shape[1]
 
     # compute the coordinates for the center the vehicle's camera view
-    camera_center_y = (height / 2)
-    # camera_center_x = (width / 2)
-    camera_center_x = 0
+    camera_center_y = height * 0.75
+    camera_center_x = -10
 
     # compute the difference between the x and y coordinates of the centroid and the vehicle's camera center
     center_error = cx - camera_center_x
@@ -226,7 +225,7 @@ def pub_yaw_rate(image, cx, cy):
     #       less than 3.0 - deviates a little inward when turning
     #                 3.0 - follows the line exactly
     #       more than 3.0 - deviates a little outward when turning
-    correction = 3.0 * camera_center_y
+    correction = 4.0 * camera_center_y
 
     # compute the yaw rate proportion to the difference between centroid and camera center
     angular_z = float(center_error / correction)
