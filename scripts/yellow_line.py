@@ -73,10 +73,13 @@ def image_callback(camera_image):
         yellow_frames += 1
     elif (yellow_frames == num_frames) and (speed_ms > 0.0) and publish_once:
         yellow_msg.data = True
+        print("YELLOW LINE: TRUE")
         publish_once = False
         yellow_frames = 0
-    elif (max_area < 5.0) and (yellow_frames == 0) and not publish_once:
+        previous_time = time_elapsed_secs
+    elif (int(time_elapsed_secs - previous_time) == 30) and not publish_once:
         publish_once = True
+        previous_time = 0.0
     else:
         yellow_msg.data = False
         yellow_frames = 0
