@@ -196,7 +196,7 @@ def pub_yaw_rate(image, cx, cy):
 ################### main ###################
 if __name__ == "__main__":
 
-    rospy.init_node("outer_line_follow", anonymous=True)
+    rospy.init_node("line_follow_outer", anonymous=True)
 
     rospy.Subscriber("/camera/image_raw", Image, image_callback)
 

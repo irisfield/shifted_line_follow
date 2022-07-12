@@ -32,6 +32,11 @@ def speed_report_callback(report):
     speed_ms = report.data
     return
 
+def time_report_callback(report):
+    global time_elapsed_secs
+    time_elapsed_secs = report.data
+    return
+
 def image_callback(camera_image):
     global previous_time, yellow_frames, publish_once
 
@@ -103,6 +108,7 @@ if __name__ == "__main__":
 
     rospy.Subscriber("/camera/image_raw", Image, image_callback)
     rospy.Subscriber("/sdt_report/speed_ms", Float32, speed_report_callback)
+    rospy.Subscriber("/sdt_report/time_secs", Float32, time_report_callback)
 
     yellow_msg_pub = rospy.Publisher("/yellow_line_detected", Bool, queue_size=1)
 
