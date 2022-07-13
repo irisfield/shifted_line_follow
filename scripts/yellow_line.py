@@ -70,10 +70,10 @@ def image_callback(camera_image):
     # draw the obtained contour lines(or the set of coordinates forming a line) on the original image
     cv2.drawContours(roi_image, max_contour, -1, (0, 0, 255), 8)
 
-    num_frames = 5
+    num_frames = 7
 
     # detect yellow for a continuous number of frames
-    if (max_area > 400) and (yellow_frames < num_frames) and (speed_ms > 0.0):
+    if (max_area > 600) and (yellow_frames < num_frames) and (speed_ms > 0.0):
         yellow_msg.data = False
         yellow_frames += 1
     elif (yellow_frames == num_frames) and (speed_ms > 0.0) and publish_once:
