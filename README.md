@@ -1,7 +1,9 @@
 # Algorithm 1: Shifted Line Follow Using Proportional Yaw Rate
 
 Running on an Intel NUC inside ACTor 1 at LTU.
-![The cenntroid of the largest contour](misc/centroid_of_largest_contour.png)
+
+![The centroid of the largest contour](misc/centroid_of_largest_contour.png)
+
 
 # Install
 Clone this package into your catkin workspace. I call mine `actor_ws`.
