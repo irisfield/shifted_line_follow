@@ -1,5 +1,5 @@
-# Algorithm 1: Shifted Line Follow Based On r Proportional Yaw Rate
-Clone this package to your your catkin workspace, I call mine `actor_ws`.
+# Algorithm 1: Shifted Line Follow Using Proportional Yaw Rate
+Clone this package into your catkin workspace. I call mine `actor_ws`.
 ```
 git clone https://github.com/irisfield/shifted_line_pkg.git ~/actor_ws/src
 ```
@@ -11,10 +11,12 @@ This package requires the `SteeringReport` message from the drive-by-wire (DBW) 
 Installation steps
 
 ### 1. SteeringReport Message
-Follow all the steps [here]( https://bitbucket.org/DataspeedInc/dbw_polarisyy_ros/src/f229dcb6a9366524e1aacc2e80e4df2fd7995143/ROS_SETUP.md).
+Navigate to Dataspeed's [dbw_polaris_ros](https://bitbucket.org/DataspeedInc/dbw_polaris_ros/) package.
+![Click the hyperlink](misc/dbw_polaris_ros_click_the_here_hyperlink.png)
+Click the `here` hyperlink and follow the all instructions up until it tells you to source the workspace.
 
-### 1.1 (Optional) UlcReport Message
-You should now have a `dbw_ws` in your home directory. This workspace contains the `SteeringReport` message, to install the `UlcReport` message, run the following commands:
+### 2. UlcReport Message (Optional)
+You should now have a `dbw_ws` in your home directory. This workspace contains the `SteeringReport` message but not the `UlcReport`, to install the `UlcReport` message, run the following commands:
 ```
 cd ~/dbw_ws/src
 git clone https://bitbucket.org/DataspeedInc/dataspeed_ulc_ros.git
