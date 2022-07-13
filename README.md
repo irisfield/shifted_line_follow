@@ -2,7 +2,9 @@
 
 Running on an Intel NUC inside ACTor 1 at LTU.
 
-![The centroid of the largest contour](misc/centroid_of_largest_contour.png)
+<p align="center">
+  ![The centroid of the largest contour](misc/centroid_of_largest_contour.png)
+</p>
 
 
 # Install
