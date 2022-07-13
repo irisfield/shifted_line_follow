@@ -98,7 +98,7 @@ def apply_filters(cv_image):
     balanced_image = apply_white_balance(cv_image)
 
     # one more time
-    balanced_image = apply_white_balance(balanced_image)
+    # balanced_image = apply_white_balance(balanced_image)
 
     # convert image to the HLS color space
     hls_image = cv2.cvtColor(balanced_image, cv2.COLOR_BGR2HLS)
