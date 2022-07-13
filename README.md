@@ -3,7 +3,7 @@
 Running on an Intel NUC inside ACTor 1 at LTU.
 
 <p align="center">
-  ![The centroid of the largest contour](misc/centroid_of_largest_contour.png)
+  <img src="misc/centroid_of_largest_contour.png"
 </p>
 
 
