@@ -98,7 +98,7 @@ def apply_filters(cv_image):
     balanced_image = apply_white_balance(cv_image)
 
     # one more time
-    balanced_image = apply_white_balance(balanced_image)
+    # balanced_image = apply_white_balance(balanced_image)
 
     # convert image to the HLS color space
     hls_image = cv2.cvtColor(balanced_image, cv2.COLOR_BGR2HLS)
@@ -247,7 +247,7 @@ def pub_yaw_rate(image, cx, cy):
 ################### main ###################
 if __name__ == "__main__":
 
-    rospy.init_node("inner_line_follow", anonymous=True)
+    rospy.init_node("line_follow_inner", anonymous=True)
 
     rospy.Subscriber("/camera/image_raw", Image, image_callback)
 

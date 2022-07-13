@@ -32,6 +32,11 @@ def speed_report_callback(report):
     speed_ms = report.data
     return
 
+def time_report_callback(report):
+    global time_elapsed_secs
+    time_elapsed_secs = report.data
+    return
+
 def image_callback(camera_image):
     global previous_time, yellow_frames, publish_once
 
@@ -65,10 +70,10 @@ def image_callback(camera_image):
     # draw the obtained contour lines(or the set of coordinates forming a line) on the original image
     cv2.drawContours(roi_image, max_contour, -1, (0, 0, 255), 8)
 
-    num_frames = 5
+    num_frames = 7
 
     # detect yellow for a continuous number of frames
-    if (max_area > 400) and (yellow_frames < num_frames) and (speed_ms > 0.0):
+    if (max_area > 600) and (yellow_frames < num_frames) and (speed_ms > 0.0):
         yellow_msg.data = False
         yellow_frames += 1
     elif (yellow_frames == num_frames) and (speed_ms > 0.0) and publish_once:
@@ -103,6 +108,7 @@ if __name__ == "__main__":
 
     rospy.Subscriber("/camera/image_raw", Image, image_callback)
     rospy.Subscriber("/sdt_report/speed_ms", Float32, speed_report_callback)
+    rospy.Subscriber("/sdt_report/time_secs", Float32, time_report_callback)
 
     yellow_msg_pub = rospy.Publisher("/yellow_line_detected", Bool, queue_size=1)
 
