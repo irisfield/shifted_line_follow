@@ -14,6 +14,7 @@ Installation steps
 Navigate to Dataspeed's [dbw_polaris_ros](https://bitbucket.org/DataspeedInc/dbw_polaris_ros/) package.
 
 You will see the following:
+
 ![Click the hyperlink](misc/dbw_polaris_ros_click_the_here_hyperlink.png)
 
 Click the `here` hyperlink and follow the all instructions up until it tells you to source the workspace.
