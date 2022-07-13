@@ -1,44 +1,51 @@
-# Algorithm 1: Shifted Line Following
+# Algorithm 1: Shifted Line Follow Based On r Proportional Yaw Rate
+Clone this package to your your catkin workspace, I call mine `actor_ws`.
+```
+git clone https://github.com/irisfield/shifted_line_pkg.git ~/actor_ws/src
+```
 
-# Additional Packages
-This package requires the `SteeringReport` and `UlcReport` messages from the drive-by-wire (DBW) system.
-Repo: https://bitbucket.org/DataspeedInc/dbw_polaris_ros/
+# Dependencies
+This package requires the `SteeringReport` message from the drive-by-wire (DBW) system located [here](https://bitbucket.org/DataspeedInc/dbw_polaris_ros/). The Installation steps are listed below.
 
-## Install DBW Messages
-### 1. SteeringReport
+## DBW Messages
+Installation steps
+
+### 1. SteeringReport Message
 Follow all the steps [here]( https://bitbucket.org/DataspeedInc/dbw_polarisyy_ros/src/f229dcb6a9366524e1aacc2e80e4df2fd7995143/ROS_SETUP.md).
 
-### 2. UlcReport
-You show now have a `dbw_ws` in your home directory. This workspace contains the `SteeringReport` message, to install the `UlcReport` message, run:
+### 1.1 (Optional) UlcReport Message
+You should now have a `dbw_ws` in your home directory. This workspace contains the `SteeringReport` message, to install the `UlcReport` message, run the following commands:
 ```
 cd ~/dbw_ws/src
 git clone https://bitbucket.org/DataspeedInc/dataspeed_ulc_ros.git
 ```
 
 ### 3. Build
-Source and catkin_make the packages in the `~/dbw_ws` directory:
+Source and then `catkin_make` the packages in the `~/dbw_ws` directory:
 ```
 cd ~/dbw_ws
-source devel/setup.bash
+source devel/setup.sh
 catkin_make
 ```
 
 ### 4. Test
-The drive-by-wire system `steering_report` and `ulc_report` messages should be built and ready to use. To test run a rosbag with the `steering_report` and/or `ulc_report` topics and run:
+The `steering_report` message should be built and ready to use. To test run a rosbag with the `/vehicle/steering_report` (or `/vehicle/ulc_report`) topics, then run the following command in a seperate terminal:
 ```
 rostopic echo /vehicle/steering_report
 ```
 
-This will only work if the `~/dbw_ws/devel/setup.sh` is sourced or if you sourced `dbw_ws` before running `catkin_make` on the workspace where this package is located.
-
+This will only work if `setup.sh` file inside `~/dbw_ws/devel` is sourced OR if it was source before you built the `actor_ws` workspace.
 
 ### NOTE
-Make sure you source `~/dbw_ws/devel/setup.sh` **before** running `catkin_make` on the current workspace.
+Make sure you source `~/dbw_ws/devel/setup.sh` **before** building the the packages in `actor_ws` with the `catkin_make` command.
 
-If this still gives you problem, delete the `~/<your_ws>/build` directory and rebuild the workspace:
+If this still gives you problem, delete the `~/actor_ws/build` directory and rebuild the workspace by running the following commands:
 ```
-rm -rf ~/<your_ws>/build
 source ~/dbw_ws/devel/setup.sh
+cd ~/actor_ws
+rm -rf build
 catkin_make
-source ~/<your_ws>/devel/setup.sh
+source devel/setup.sh
 ```
+
+You only need to build `dbw_ws` once.
