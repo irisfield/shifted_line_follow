@@ -1,4 +1,9 @@
 # Algorithm 1: Shifted Line Follow Using Proportional Yaw Rate
+
+Running on an Intel NUC inside ACTor 1 at LTU.
+![The cenntroid of the largest contour](misc/centroid_of_largest_contour.png)
+
+# Install
 Clone this package into your catkin workspace. I call mine `actor_ws`.
 ```
 git clone https://github.com/irisfield/shifted_line_pkg.git ~/actor_ws/src
@@ -15,7 +20,7 @@ Navigate to Dataspeed's [dbw_polaris_ros](https://bitbucket.org/DataspeedInc/dbw
 
 You will see the following:
 
-![Click the hyperlink](misc/dbw_polaris_ros_click_the_here_hyperlink.png)
+![The hyperlink you have to click](misc/dbw_polaris_ros_click_the_here_hyperlink.png)
 
 Click the `here` hyperlink and follow the all instructions up until it tells you to source the workspace.
 
